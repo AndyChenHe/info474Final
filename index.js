@@ -82,10 +82,12 @@
             
         svgContainer.selectAll("circle")
             .filter(function(d) {return (filter == d.room_type) || (filter == 'all');})
-            .attr("display", display);
+            .attr("display", display)
         });
 
   }
+
+
 
   // make title and axes labels
   function makeLabels() {
@@ -128,12 +130,19 @@
       .data(data)
       .enter()
       .append('circle')
+        .transition()
+        .delay(function(d ,i){return(i* 0.5)})
+        .duration(2000)
         .attr('cx', xMap)
         .attr('cy', yMap)
         .attr('r', 10)
         .style('fill', colorMapFunc)
         .style('stroke', "black")
+
+
+
         // add tooltip functionality to points
+        svgContainer.selectAll("circle")
         .on("mouseover", (d) => {
             if (d['overall_satisfaction'] == ""){
               div.transition()
@@ -160,7 +169,12 @@
           div.transition()
             .duration(500)
             .style("opacity", 0);
-        });
+        })
+
+
+        
+
+    
   }
 
   // show legend
