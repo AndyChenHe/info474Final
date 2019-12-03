@@ -27,66 +27,69 @@ window.onload = function () {
         .attr('width', msm.width)
         .attr('height', msm.height);
     // d3.csv is basically fetch but it can be be passed a csv file as a parameter
-    d3.csv("seattle_01.csv")
-        .then((d) => makeScatterPlot(d))
+    d3.csv("../seattle_01.csv")
+        .then((data) => makeScatterPlot(data))
 }
 
 // make scatter plot with trend line
 function makeScatterPlot(csvData) {
+    data = csvData;
     // assign data as global variable; filter out unplottable values
-    data = csvData.filter((data) => {return data.fertility != "NA" && data.life_expectancy != "NA"})
+    // data = csvData.filter((data) => {return data.fertility != "NA" && data.life_expectancy != "NA"})
 
-    let dropDown = d3.select("#filter").append("select")
-        .attr("name", "year");
+    // let dropDown = d3.select("#filter").append("select")
+    //     .attr("name", "year");
 
     // get arrays of fertility rate data and life Expectancy data
-    let fertility_rate_data = data.map((row) => parseFloat(row["fertility"]));
-    let life_expectancy_data = data.map((row) => parseFloat(row["life_expectancy"]));
+    // let fertility_rate_data = data.map((row) => parseFloat(row["fertility"]));
+    let rating_data = data.map((row) => parseFloat(row["overall_satisfaction"]));
+
+    let review_data = data.map((row) => parseFloat(row["reviews"]));
 
     // find data limits
-    let axesLimits = findMinMax(fertility_rate_data, life_expectancy_data);
+    let axesLimits = findMinMax(rating_data, review_data);
 
     // draw axes and return scaling + mapping functions
-    let mapFunctions = drawAxes(axesLimits, "fertility", "life_expectancy", svgContainer, msm);
+    let mapFunctions = drawAxes(axesLimits, "rating", "reviews", svgContainer, msm);
 
     // plot data as points and add tooltip functionality
     plotData(mapFunctions);
 
     // draw title and axes labels
-    makeLabels(svgContainer, msm, "Fertility vs Life Expectancy (1980)",'Fertility Rates','Life Expectancy (years)');
+    makeLabels(svgContainer, msm, "Rating vs Review",'rating','reviews');
 
-    let distinctYears = [...new Set(data.map(d => d.year))];
-    let defaultYear = 1980;
+    // let distinctYears = [...new Set(data.map(d => d.year))];
+    // let defaultYear = 1980;
 
-    let options = dropDown.selectAll("option")
-           .data(distinctYears)
-           .enter()
-           .append("option")
-           .text(function (d) { return d; })
-           .attr("value", function (d) { return d; })
-           .attr("selected", function(d){ return d == defaultYear; })
+    // let options = dropDown.selectAll("option")
+    //        .data(distinctYears)
+    //        .enter()
+    //        .append("option")
+    //        .text(function (d) { return d; })
+    //        .attr("value", function (d) { return d; })
+    //        .attr("selected", function(d){ return d == defaultYear; })
            
-    showCircles(dropDown.node());//this will filter initially
-    dropDown.on("change", function() {
-        showCircles(this)
-    });
+    // showCircles(dropDown.node());//this will filter initially
+    // dropDown.on("change", function() {
+    //     showCircles(this)
+    // });
 }
 
-function showCircles(me) {
-    let selected = me.value;
-    displayOthers = me.checked ? "inline" : "none";
-    display = me.checked ? "none" : "inline";
+// function showCircles(me) {
+//     let selected = me.value;
+//     displayOthers = me.checked ? "inline" : "none";
+//     display = me.checked ? "none" : "inline";
 
-    svgContainer.selectAll(".circles")
-        .data(data)
-        .filter(function(d) {return selected != d.year;})
-        .attr("display", displayOthers);
+//     svgContainer.selectAll(".circles")
+//         .data(data)
+//         .filter(function(d) {return selected != d.year;})
+//         .attr("display", displayOthers);
         
-    svgContainer.selectAll(".circles")
-        .data(data)
-        .filter(function(d) {return selected == d.year;})
-        .attr("display", display);
-}
+//     svgContainer.selectAll(".circles")
+//         .data(data)
+//         .filter(function(d) {return selected == d.year;})
+//         .attr("display", display);
+// }
 
 // make title and axes labels
 function makeLabels(svgContainer, msm, title, x, y) {
@@ -112,14 +115,21 @@ function makeLabels(svgContainer, msm, title, x, y) {
 // and add tooltip functionality
 function plotData(map) {
     // get population data as array
-    curData = data.filter((row) => {
-        return row.year == 1960 && row.fertility != "NA" && row.life_expectancy != "NA"
-    })
-    let pop_data = data.map((row) => +row["population"]);
-    let pop_limits = d3.extent(pop_data);
+    // curData = data.filter((row) => {
+    //     return row.year == 1960 && row.fertility != "NA" && row.life_expectancy != "NA"
+    // })
+
+    // let pop_data = data.map((row) => +row["population"]);
+    let price_data = data.map((row) => +row["prices"]);
+    // let pop_limits = d3.extent(pop_data);
+    let price_limits = d3.extent(price_data);
+
     // make size scaling function for population
-    let pop_map_func = d3.scaleSqrt()
-        .domain([pop_limits[0], pop_limits[1]])
+    // let pop_map_func = d3.scaleSqrt()
+    //     .domain([pop_limits[0], pop_limits[1]])
+    //     .range([3, 50]);
+    let price_map_func = d3.scaleSqrt()
+        .domain([price_limits[0], price_limits[1]])
         .range([3, 50]);
 
     // mapping functions
@@ -143,7 +153,8 @@ function plotData(map) {
         .append('circle')
         .attr('cx', xMap)
         .attr('cy', yMap)
-        .attr('r', (d) => pop_map_func(d["population"]))
+        .attr('r', (d) => price_map_func(d["prices"]))
+        // .attr('r', 10)
         .attr('stroke', "#69b3a2")
         .attr('stroke-width', 2)
         .attr('fill', 'white')
@@ -154,14 +165,15 @@ function plotData(map) {
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
-            plotPopulation(d.country, toolChart)
+        
+        plotPopulation(d.country, toolChart)
             div//.html("Fertility:       " + d.fertility + "<br/>" +
                     // "Life Expectancy: " + d.life_expectancy + "<br/>" +
                     // "Population:      " + numberWithCommas(d["population"]) + "<br/>" +
                     // "Year:            " + d.year + "<br/>" +
-                    // "Country:         " + d.country)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
+                // "Country:         " + d.country)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
             
         })
         .on("mouseout", (d) => {
@@ -172,24 +184,29 @@ function plotData(map) {
 }
 
 function plotPopulation(country, toolChart) {
+    //bedroom and price
     let countryData = data.filter((row) => {return row.country == country})
-    let population = countryData.map((row) => parseInt(row["population"]) / 1000000);
-    let year = countryData.map((row) => parseInt(row["year"]));
+    // let population = countryData.map((row) => parseInt(row["population"]) / 1000000);
+    let bedroom = countryData.map((row) => parseInt(row["bedrooms"]));
+    // let year = countryData.map((row) => parseInt(row["year"]));
+    let price = countryData.map((row) => parseInt(row["price"]));
 
-    let axesLimits = findMinMax(year, population);
-    let mapFunctions = drawAxes(axesLimits, "year", "population", toolChart, small_msm);
+    // let axesLimits = findMinMax(year, population);
+    let axesLimits = findMinMax(bedroom, price);
+
+    let mapFunctions = drawAxes(axesLimits, "bedroom", "price", toolChart, small_msm);
     toolChart.append("path")
         .datum(countryData)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
-                    .x(function(d) { return mapFunctions.xScale(d.year) })
-                    .y(function(d) { return mapFunctions.yScale(d.population / 1000000) }))
+                    .x(function(d) { return mapFunctions.xScale(d.price) })
+                    .y(function(d) { return mapFunctions.yScale(d.bedroom)}))
                     .style("left", (d3.event.pageX) + 100+ "px")
                     // .style("top", (d3.event.pageY - 28) + "px")
                     
-    makeLabels(toolChart, small_msm, "Population Over Time For " + country, "Year", "Population (in Millions)");
+    makeLabels(toolChart, small_msm, "bedroom vs prices" + country, "price", "bedroom vs price)");
 }
 
 // draw the axes and ticks
