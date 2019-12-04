@@ -27,10 +27,10 @@ d3.csv('../seattle_01.csv').then((data) => {
     .attr('height', height + margin.top + margin.bottom)
 
     // get year min and max for us
-    const reviewsLimits = d3.extent(data, d => d['reviews'])
+    const bedroomsLimits = d3.extent(data, d => d['bedrooms'])
     // get scaling function for years (x axis)
     const xScale = d3.scaleLinear()
-        .domain([reviewsLimits[0] - 1,  + reviewsLimits[1]])
+        .domain([bedroomsLimits[0] - 1,  + bedroomsLimits[1]])
         .range([margin.left, width + margin.left])
 
     // make x axis
@@ -75,7 +75,7 @@ d3.csv('../seattle_01.csv').then((data) => {
     svg.selectAll('.dot').data(data)
         .enter()
         .append('circle')
-            .attr('cx', d => xScale(d['reviews']))
+            .attr('cx', d => xScale(d['bedrooms']))
             .attr('cy', d => yScale(d['price']))
             .attr('r',  (d) => price_map_func(d["price"]))
             .attr('fill', 'transparent')
@@ -105,18 +105,18 @@ d3.csv('../seattle_01.csv').then((data) => {
             .attr('x', 30)
             .attr('y', 40)
             .style('font-size', '30pt')
-            .text("Test");
+            .text('Price vs Bedroom');
     
         svg.append('text')
             .attr('x', 650)
             .attr('y', 1450)
             .style('font-size', '20pt')
-            .text('Test');
+            .text('Bedrooms');
     
         svg.append('text')
             .attr('transform', 'translate(30, 800)rotate(-90)')
             .style('font-size', '20pt')
-            .text('Life Expectancy (asfyklsjfkljlskjafklears)');
+            .text('Price');
         }
 
     
@@ -199,25 +199,25 @@ function plotPopulation(room, toolChart) {
     // let population = countryData.map((row) => parseInt(row["population"]) / 1000000);
     let bedroom = roomData.map((row) => parseInt(row["bedrooms"]));
     // let year = countryData.map((row) => parseInt(row["year"]));
-    let price = roomData.map((row) => parseInt(row["price"]));
+    let overall_satisfaction = roomData.map((row) => parseInt(row["overall_satisfaction"]));
 
     // let axesLimits = findMinMax(year, population);
-    let axesLimits = findMinMax(bedroom, price);
-    console.log(bedroom)
-    console.log(price)
-    let mapFunctions = drawAxes(axesLimits, "bedroom", "price", toolChart, small_msm);
+    let axesLimits = findMinMax(bedroom, overall_satisfaction);
+    console.log("bedroom", bedroom)
+    console.log("overall_satisfaction", overall_satisfaction)
+    let mapFunctions = drawAxes(axesLimits, "bedroom", "overall_satisfaction", toolChart, small_msm);
     toolChart.append("path")
         .datum(roomData)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
-                    .x(function(d) { return mapFunctions.xScale(d.price) })
+                    .x(function(d) { return mapFunctions.xScale(d.overall_satisfaction) })
                     .y(function(d) { return mapFunctions.yScale(d.bedroom)}))
                     .style("left", (d3.event.pageX) + 100+ "px")
                     // .style("top", (d3.event.pageY - 28) + "px")
                     
-    makeLabels(toolChart, small_msm, "bedroom vs prices" + room, "price", "bedroom vs price)");
+    makeLabels(toolChart, small_msm, "bedroom vs overall_satisfactions" + room, "overall_satisfaction", "bedroom vs overall_satisfaction)");
 }
 
 // draw the axes and ticks
