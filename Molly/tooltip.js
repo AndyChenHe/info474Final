@@ -9,6 +9,7 @@ const msm = {
     marginAll: 50,
     marginLeft: 50,
 }
+// For tooltip
 const small_msm = {
     width: 500,
     height: 500,
@@ -80,12 +81,13 @@ d3.csv('../seattle_01.csv').then((data) => {
             .attr('r',  (d) => price_map_func(d["price"]))
             .attr('fill', 'transparent')
             .attr('stroke', "#4874B7")
+            // on mouseover of a particular plot
             .on("mouseover", function(d) {
                 toolChart.selectAll("*").remove()
                 div.transition()
                     .duration(200)
                     .style("opacity", .9);
-                plotPopulation(d.country, toolChart)
+                plotPopulation(d.room_id, toolChart)
                 div//.html("Fertility:       " + d.fertility + "<br/>" +
                         // "Life Expectancy: " + d.life_expectancy + "<br/>" +
                         // "Population:      " + numberWithCommas(d["population"]) + "<br/>" +
@@ -120,105 +122,52 @@ d3.csv('../seattle_01.csv').then((data) => {
         }
 
     
-
-// plot all the data points on the SVG
-// and add tooltip functionality
-// function plotData(map) {
-//     // get population data as array
-//     // curData = data.filter((row) => {
-//     //     return row.year == 1960 && row.fertility != "NA" && row.life_expectancy != "NA"
-//     // })
-
-//     // let pop_data = data.map((row) => +row["population"]);
-//     let price_data = data.map((row) => +row["price"]);
-//     // let pop_limits = d3.extent(pop_data);
-//     let price_limits = d3.extent(price_data);
-
-//     // make size scaling function for population
-//     // let pop_map_func = d3.scaleSqrt()
-//     //     .domain([pop_limits[0], pop_limits[1]])
-//     //     .range([3, 50]);
-//     let price_map_func = d3.scaleSqrt()
-//         .domain([price_limits[0], price_limits[1]])
-//         .range([3, 50]);
-
-//     // mapping functions
-//     let xMap = map.x;
-//     let yMap = map.y;
-
-//     // make tooltip
-//     let div = d3.select("body").append("div")
-//         .attr("class", "tooltip")
-//         .style("opacity", 0);
-
-//     // let toolTipChart = div.append("div").attr("id", "tipChart")
-//     let toolChart = div.append('svg')
-//         .attr('width', small_msm.width)
-//         .attr('height', small_msm.height)
-
-//     // append data to SVG and plot as points
-//     svgContainer.selectAll('.dot')
-//         .data(data)
-//         .enter()
-//         .append('circle')
-//         .attr('cx', xMap)
-//         .attr('cy', yMap)
-//         .attr('r', (d) => price_map_func(d["price"]))
-//         // .attr('r', 10)
-//         .attr('stroke', "#69b3a2")
-//         .attr('stroke-width', 2)
-//         .attr('fill', 'white')
-//         .attr("class", "circles")
-//         // add tooltip functionality to points
-//         .on("mouseover", (d) => {
-//             toolChart.selectAll("*").remove()
-//             div.transition()
-//                 .duration(200)
-//                 .style("opacity", .9);
-        
-//             plotPopulation(d.room_id, toolChart)
-//             div//.html("Fertility:       " + d.fertility + "<br/>" +
-//                     // "Life Expectancy: " + d.life_expectancy + "<br/>" +
-//                     // "Population:      " + numberWithCommas(d["population"]) + "<br/>" +
-//                     // "Year:            " + d.year + "<br/>" +
-//                 // "Country:         " + d.country)
-//             .style("left", (d3.event.pageX) + "px")
-//             .style("top", (d3.event.pageY - 28) + "px");
-            
-//         })
-//         .on("mouseout", (d) => {
-//             div.transition()
-//                 .duration(500)
-//                 .style("opacity", 0);
-//         });
-// }
-
-function plotPopulation(room, toolChart) {
-    //bedroom and price
-    let roomData = data.filter((row) => {return row.room == room})
-    // let population = countryData.map((row) => parseInt(row["population"]) / 1000000);
-    let bedroom = roomData.map((row) => parseInt(row["bedrooms"]));
-    // let year = countryData.map((row) => parseInt(row["year"]));
-    let overall_satisfaction = roomData.map((row) => parseInt(row["overall_satisfaction"]));
-
-    // let axesLimits = findMinMax(year, population);
-    let axesLimits = findMinMax(bedroom, overall_satisfaction);
-    console.log("bedroom", bedroom)
-    console.log("overall_satisfaction", overall_satisfaction)
-    let mapFunctions = drawAxes(axesLimits, "bedroom", "overall_satisfaction", toolChart, small_msm);
-    toolChart.append("path")
-        .datum(roomData)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
-                    .x(function(d) { return mapFunctions.xScale(d.overall_satisfaction) })
-                    .y(function(d) { return mapFunctions.yScale(d.bedroom)}))
-                    .style("left", (d3.event.pageX) + 100+ "px")
-                    // .style("top", (d3.event.pageY - 28) + "px")
+// Takes in room id to identify the current datapoint at hand. Plots the tooltip data
+function plotPopulation(room_id, toolChart) {
+    // get's only the data point that we are looking at by using unique room id
+    let roomData = data.filter((row) => {return row.room_id == room_id})
+    // Parses the accommodates data to go from string to an int
+    let accommodates = roomData.map((row) => parseInt(row["accommodates"]));
+    // Parses the bathroom data to go from string to a float
+    let bathrooms = roomData.map((row) => parseFloat(row["bathrooms"]));
+    // Gets the min and max of the two variables we are looking at
+    let axesLimits = findMinMax(accommodates, bathrooms);
+    console.log("accommodates", accommodates)
+    console.log("bathrooms", bathrooms)
+    // sets mapFunctions to the proper scales based on size of the tooltip
+    let mapFunctions = drawAxes(axesLimits, "accommodates", "bathrooms", toolChart, small_msm);
+    // Adds to the tooltip SVG a plot of the accomdates vs the bathrooms
+    toolChart
+        .append('circle')
+            .attr('cx', mapFunctions.xScale(accommodates))
+            .attr('cy', mapFunctions.yScale(bathrooms))
+            .attr('r',  20)
+            .attr('fill', 'transparent')
+            .attr('stroke', "black")
                     
-    makeLabels(toolChart, small_msm, "bedroom vs overall_satisfactions" + room, "overall_satisfaction", "bedroom vs overall_satisfaction)");
+    makeToolKitLabels(toolChart, small_msm, "Number of Accommodates Vs. Number of Bathroom", 'Number of Accommodates', 'Number of Bathrooms');
 }
+
+function makeToolKitLabels(svgContainer, msm, title, x, y) {
+    svgContainer.append('text')
+        .attr('x', (msm.width / 2) - 250)
+        .attr('y', msm.marginAll / 2 + 10)
+        .style('font-size', '18pt')
+        .text(title);
+
+    svgContainer.append('text')
+        .attr('x', (msm.width / 2) - 100)
+        .attr('y', msm.height - 10)
+        .style('font-size', '16pt')
+        .text(x);
+
+    svgContainer.append('text')
+        .attr('transform', 'translate( 15,' + (msm.height / 2 + 100) + ') rotate(-90)')
+        .style('font-size', '16pt')
+        .text(y);
+}
+
+
 
 // draw the axes and ticks
 function drawAxes(limits, x, y, svgContainer, msm) {
