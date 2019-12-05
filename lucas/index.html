@@ -1,77 +1,37 @@
+
+<!DOCTYPE html>
+
+<style>
+    div.tooltip {	
+      position: absolute;			
+      text-align: center;			
+      width: 450px;					
+      height: 175px;					
+      padding: 4px;		
+      padding-top: 10px;		
+      font: 12px sans-serif;		
+      background: #e3dfe3;	
+      border: 0px;		
+      border-radius: 8px;			
+      pointer-events: none;			
+    }
+  </style>
+
 <html>
 <head>
+  <div class='nav'>
+      <a href="../index.html">Price Vs Rating</a>
+      <a href="../lucas/index.html">Maps</a>
+      <a href="../Molly/index.html">Tooltip with viz</a>
+
+  </div>  
+  <h1>Seattle Airbnb Data</h1>
+  <h3> Visualization of Seattle's Airbnb listings scraped from 2018. This map shows Airbnb listing density throughout Seattle and deductions about most populated neighborhoods can be deduced. The maps are colored based on zip code.</h5> </h5>
   <title>A D3 map</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
   <script src='https://d3js.org/d3.v4.min.js'></script>
-  <link rel="stylesheet" href="style.css" type="text/css"/>
-  <!-- <script src='neighborhoods.js'></script> -->
+  <script src="index.js"></script>
   <!-- <script src="rodents.js"></script> -->
 </head>
 <body>
-    <div class='nav'>
-        <a href="../index.html">Price Vs Rating</a>
-        <a href="../lucas/index.html">Maps</a>
-        <a href="../Molly/index.html">Tooltip with viz</a>
-    </div>  
-    <h1 style='text-align:center'>Seattle Airbnb Data</h1>
-    <h3 style='text-align:center'> Visualization of Seattle's Airbnb listings scraped from 2018. This map shows Airbnb listing density throughout Seattle and deductions about most populated neighborhoods can be deduced.</h3> 
-
-  <script>
-var width = 1250,
-    height = 1900;
-
-d3.json("zip-codes.json", function(data) {
-//   var center = d3.geo.centroid(data)
-  var offset = [width/2, height/2];
-  let zip_code_json = data;
-  var svg = d3.select('body')
-  .append('svg')
-  .attr('width', width)
-  .attr('height', height);
-
-
-    var zip_codes = svg.append('g');
-
-    var albersProjection = d3.geoAlbers()
-    .scale(290000)
-    .rotate([122.3321, 0])
-    .center([0, 47.6062])
-    .translate([width/2, height/2]);
-
-    var geoPath = d3.geoPath()
-        .projection(albersProjection);
-
-    var points = svg.append( "g" ).attr( "id", "points" );
-
-    zip_codes.selectAll('path')
-    .data(zip_code_json.features)
-    .enter()
-    .append('path')
-    .attr('fill', '#ccc')
-    .attr('d', geoPath);
-
-  d3.json('lat_long.json', function(pointData)  {
-    zip_codes.selectAll('circle').data(pointData.features)
-      .enter()
-      .append('path')
-      .attr('class', 'coord')
-      .attr('fill', '#1fbae0')
-      .attr('fill-opacity', 0.5)
-      .attr("stroke", "#002e74")
-      .attr('d', geoPath)
-
-  })
-
-
-
-
-  });
-
-
-
-
-  </script>
-
-
-
-</body>
-</html>
+  
