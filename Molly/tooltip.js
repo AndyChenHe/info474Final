@@ -149,8 +149,9 @@ function plotPopulation(room_id, toolChart) {
 
 
     toolChart
-    .append('rect')
     .append('text')
+    .attr('x', 225)
+    .attr('y', mapFunctions.yScale(bathrooms) - 70)    
     .style('font-size', '18pt')
     .text(accommodates)
    
@@ -199,7 +200,7 @@ function drawAxes(limits, x, y, svgContainer, msm) {
     };
 
     // plot x-axis at bottom of SVG
-    let xAxis = d3.axisBottom().scale(xScale);
+    let xAxis = d3.axisBottom().scale(xScale).tickSize(0).tickValues([]);
     svgContainer.append("g")
         .attr('transform', 'translate(0, ' + (msm.height - msm.marginAll) + ')')
         .call(xAxis);
