@@ -138,13 +138,23 @@ function plotPopulation(room_id, toolChart) {
     let mapFunctions = drawAxes(axesLimits, "accommodates", "bathrooms", toolChart, small_msm);
     // Adds to the tooltip SVG a plot of the accomdates vs the bathrooms
     toolChart
-        .append('circle')
-            .attr('cx', mapFunctions.xScale(accommodates))
-            .attr('cy', mapFunctions.yScale(bathrooms))
-            .attr('r',  20)
+        .append('rect')
+            .attr('x', 220)
+            .attr('y', mapFunctions.yScale(bathrooms) - 60)
+            .attr('width', 30)
+            .attr('height', 500 - mapFunctions.yScale(bathrooms))
+            // .attr('r',  20)
             .attr('fill', 'transparent')
             .attr('stroke', "black")
-                    
+
+
+    toolChart
+    .append('rect')
+    .append('text')
+    .style('font-size', '18pt')
+    .text(accommodates)
+   
+
     makeToolKitLabels(toolChart, small_msm, "Number of Accommodates Vs. Number of Bathroom", 'Number of Accommodates', 'Number of Bathrooms');
 }
 
@@ -165,6 +175,8 @@ function makeToolKitLabels(svgContainer, msm, title, x, y) {
         .attr('transform', 'translate( 15,' + (msm.height / 2 + 100) + ') rotate(-90)')
         .style('font-size', '16pt')
         .text(y);
+    
+
 }
 
 
