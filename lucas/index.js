@@ -86,7 +86,7 @@ d3.json("zip-codes.json", function(data) {
     var zip_codes = svg.append('g');
 
     var albersProjection = d3.geoAlbers()
-    .scale(275000)
+    .scale(200000)
     .rotate([122.3321, 0])
     .center([0, 47.6062])
     .translate([width/2, height/2]);
