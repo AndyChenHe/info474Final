@@ -118,7 +118,7 @@ d3.csv('../seattle_01.csv').then((data) => {
         svg.append('text')
             .attr('transform', 'translate(30, 800)rotate(-90)')
             .style('font-size', '20pt')
-            .text('Price');
+            .text('Price (USD)');
         }
 
     
